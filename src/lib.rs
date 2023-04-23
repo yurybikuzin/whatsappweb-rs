@@ -1,43 +1,42 @@
-extern crate ws;
 extern crate simple_logger;
+extern crate ws;
 #[macro_use]
 extern crate log;
 extern crate url;
 #[macro_use]
 extern crate json;
-extern crate ring;
 extern crate base64;
-extern crate qrcode;
 extern crate image;
+extern crate qrcode;
+extern crate ring;
 extern crate untrusted;
 #[macro_use]
 extern crate serde_derive;
 extern crate bincode;
-extern crate protobuf;
 extern crate byteorder;
 extern crate chrono;
+extern crate protobuf;
 #[macro_use]
 extern crate error_chain;
 #[cfg(feature = "media")]
 extern crate reqwest;
 
 pub mod connection;
-pub mod message;
+pub mod crypto;
+pub mod errors;
+mod json_protocol;
 #[cfg(feature = "media")]
 pub mod media;
+pub mod message;
 mod message_wire;
 mod node_protocol;
 mod node_wire;
-mod json_protocol;
-mod websocket_protocol;
-pub mod crypto;
 mod timeout;
-pub mod errors;
+mod websocket_protocol;
 
 use std::str::FromStr;
 
 use errors::*;
-
 
 #[derive(Debug, Clone, PartialOrd, PartialEq)]
 pub struct Jid {
@@ -69,7 +68,10 @@ impl Jid {
             return Err("not a valid phonenumber".into());
         }
 
-        Ok(Jid { id: phonenumber, is_group: false })
+        Ok(Jid {
+            id: phonenumber,
+            is_group: false,
+        })
     }
 }
 
@@ -87,7 +89,7 @@ impl FromStr for Jid {
                 "@g.us" => true,
                 "@s.whatsapp.net" => false,
                 "@broadcast" => false, //TODO
-                _ => return Err("invalid surfix".into())
+                _ => return Err("invalid surfix".into()),
             },
         })
     }
@@ -112,7 +114,6 @@ pub struct Chat {
     pub spam: bool,
     pub read_only: bool,
 }
-
 
 #[derive(Debug, Copy, Clone)]
 pub enum PresenceStatus {
